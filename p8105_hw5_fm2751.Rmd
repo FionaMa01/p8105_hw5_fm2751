@@ -246,33 +246,44 @@ power_of_test
 
 We could see from the output plot that the power of t test increases all the way toward 100% from mean = 1 to mean = 5 and stay constant after that (till mean = 6. Under the null hypothesis where mean = 0, so as the true mean increases, and effect size (i.e., true mean - 0) also increases. So, we can get the association that as effect size increases, the power of test will increase.
 
-### Make 2 overlaid plots
+### Make a overlay plot
 
 ```{r}
-estimates =
+Total_estimates =
   sim_data_multi %>% 
   group_by(mean_multi) %>% 
   summarize(
     average_est_mean = mean(estimate)
   )
 
-overlay_plot =
+Rejected_estimates = 
   sim_data_multi %>% 
   filter(p.value < 0.05) %>% 
   group_by(mean_multi) %>% 
-  summarize(estimated_mean = mean(estimate)) %>% 
-  ggplot(aes(x = mean_multi, y = estimated_mean, color = "Rejected")) +
-  geom_point() +
-  geom_point(data = estimates, aes(color = "Total")) +
-  scale_color_manual(
-    name = "Legend",
-    breaks = c("Rejected", "Total"),
-    values = c("Rejected" = "pink", "Total" = "blue")
-  ) +
-  labs(x = "True mean", y = "Average estimated mean" )
+  summarize(
+    average_est_mean = mean(estimate)
+  )
 
+Overlay_plot = 
+Total_estimates %>% 
+  ggplot(aes(x = mean_multi, y = average_est_mean)) +
+           geom_line(aes(color = "Total")) +
+           geom_line(data = Rejected_estimates, aes(color = "Rejected")) +
+           scale_color_manual(
+             name = "Color label:",
+             breaks = c("Total", "Rejected"),
+             values = c("Total" = "blue", "Rejected" = "pink")
+           ) +
+           geom_point(color = "blue") +
+           geom_point(data = Rejected_estimates, color = "pink") +
+           labs(x = "True mean", y = "Average estimated mean" ) +
+  scale_x_continuous(breaks = 1:6) +
+  scale_y_continuous(breaks = 1:6)
+ 
+Overlay_plot
 
-  
 ```
 
+From the overlay plot we could clearly see taht the sample average of estimated mean across tests for which the null is rejected gradually approximate to the true value of mean from mean = 1 to mean = 5 and matched to each other after then.
+This is because as the effect size increases and power increases, the test has stronger power to recognize each difference as statistically significant and reject them. In this case, by reaching power to 100% as we found above (i.e., when mean = 5), the test will be very approximate and overlap to the true value. This plot is consistent with what we found above about the power.
 
