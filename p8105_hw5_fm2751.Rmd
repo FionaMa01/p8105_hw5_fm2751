@@ -101,7 +101,12 @@ homicide_df =
       disposition == "Closed by arrest" ~ "solved"
     )) %>% 
   relocate(city_state) %>% 
-  select(city_state, resolution)
+  select(city_state, resolution) 
+
+# Find a strange input for "Tulsa,AL", remove
+homicide_df = 
+homicide_df %>% 
+  filter(city_state != "Tulsa,AL")
 
 head(homicide_df, 10)
 ```
@@ -174,3 +179,9 @@ homi_plot
 ```
 
 ## Problem 3
+
+### Generate 5000 datasets
+
+```{r}
+```
+
