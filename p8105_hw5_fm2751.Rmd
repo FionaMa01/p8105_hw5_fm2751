@@ -180,8 +180,49 @@ homi_plot
 
 ## Problem 3
 
-### Generate 5000 datasets
+### Create function
 
 ```{r}
+t_test = function(n = 30, mean, sd = 5) {
+  sim_data = tibble(
+    x = rnorm(n, mean, sd)
+  )
+  t.test(sim_data) %>% 
+    broom::tidy() %>% 
+    select(estimate, p.value)
+}
 ```
 
+### Generate datasets with mean = 0
+
+```{r}
+sim_data_0 = 
+  expand_grid(
+    mean_0 = 0,
+    iteration = 1:5000
+  ) %>% 
+  mutate(
+    estimate_df = map(.x = mean_0, ~t_test(mean = .x))
+  ) %>% 
+  unnest(estimate_df)
+
+head(sim_data_0,10)
+```
+
+### Repeat the above for mean={1,2,3,4,5,6}
+
+```{r}
+sim_data_multi = 
+  expand_grid(
+    mean_multi = 1:6,
+    iteration = 1:5000
+  ) %>% 
+  mutate(
+    estimate_df = map(.x = mean_multi, ~t_test(mean = .x))
+  ) %>% 
+  unnest(estimate_df)
+
+head(sim_data_multi,10)
+```
+
+### Make a plot showing the power of the test
