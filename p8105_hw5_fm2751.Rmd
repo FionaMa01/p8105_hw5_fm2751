@@ -141,9 +141,36 @@ broom::tidy(Baltimore) %>%
 ### For each of the cities
 
 ```{r}
+All_city =
+  homicide_summary %>% 
+  mutate(
+    homi_test = map2(.x = homicide_unsolved, .y = homicide_total, ~prop.test(x = .x, n = .y)),
+    homi_tidy = map(.x = homi_test, ~broom::tidy(.x))
+  ) %>% 
+  select(city_state, homi_tidy) %>% 
+  unnest(homi_tidy) %>% 
+  select(city_state, estimate, starts_with("conf"))
 
+All_city %>% 
+  knitr::kable()
+  
 ```
 
+### Create a plot
 
+```{r}
+homi_plot =
+  All_city %>% 
+  mutate(
+    city_state = fct_reorder(city_state, estimate)) %>% 
+  ggplot(aes(x = city_state, y = estimate)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) +
+  labs(y = "Estimated proportion", x = "City") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  )
+  
+homi_plot
+```
 
 ## Problem 3
