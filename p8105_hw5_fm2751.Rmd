@@ -226,3 +226,53 @@ head(sim_data_multi,10)
 ```
 
 ### Make a plot showing the power of the test
+
+```{r}
+power_of_test = 
+  sim_data_multi %>% 
+  group_by(mean_multi) %>% 
+  summarize(
+    proportion_rejected = sum(p.value < 0.05)/5000) %>% 
+  ggplot(aes(x = mean_multi, y = proportion_rejected)) +
+  geom_point() +
+  geom_line() +
+  labs(y = "Proportion of times the null was rejected", x = "Mean") +
+  scale_x_continuous(breaks = 1:6)
+
+power_of_test
+```
+
+### Describe the association between effect size and power
+
+We could see from the output plot that the power of t test increases all the way toward 100% from mean = 1 to mean = 5 and stay constant after that (till mean = 6. Under the null hypothesis where mean = 0, so as the true mean increases, and effect size (i.e., true mean - 0) also increases. So, we can get the association that as effect size increases, the power of test will increase.
+
+### Make 2 overlaid plots
+
+```{r}
+estimates =
+  sim_data_multi %>% 
+  group_by(mean_multi) %>% 
+  summarize(
+    average_est_mean = mean(estimate)
+  )
+
+overlay_plot =
+  sim_data_multi %>% 
+  filter(p.value < 0.05) %>% 
+  group_by(mean_multi) %>% 
+  summarize(estimated_mean = mean(estimate)) %>% 
+  ggplot(aes(x = mean_multi, y = estimated_mean, color = "Rejected")) +
+  geom_point() +
+  geom_point(data = estimates, aes(color = "Total")) +
+  scale_color_manual(
+    name = "Legend",
+    breaks = c("Rejected", "Total"),
+    values = c("Rejected" = "pink", "Total" = "blue")
+  ) +
+  labs(x = "True mean", y = "Average estimated mean" )
+
+
+  
+```
+
+
